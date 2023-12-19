@@ -26,6 +26,8 @@ import com.badbones69.crazyenvoys.support.libraries.PluginSupport;
 import com.badbones69.crazyenvoys.support.claims.WorldGuardSupport;
 import com.badbones69.crazyenvoys.support.holograms.DecentHologramsSupport;
 import com.ryderbelserion.cluster.paper.utils.DyeUtils;
+import me.nahu.scheduler.wrapper.runnable.WrappedRunnable;
+import me.nahu.scheduler.wrapper.task.WrappedTask;
 import us.crazycrew.crazyenvoys.other.MsgUtils;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -39,8 +41,6 @@ import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import us.crazycrew.crazyenvoys.common.config.ConfigManager;
 import us.crazycrew.crazyenvoys.common.config.types.ConfigKeys;
@@ -74,8 +74,8 @@ public class CrazyManager {
     
     private CountdownTimer countdownTimer;
 
-    private BukkitTask runTimeTask;
-    private BukkitTask coolDownTask;
+    private WrappedTask runTimeTask;
+    private WrappedTask coolDownTask;
     private Calendar nextEnvoy;
     private Calendar envoyTimeLeft;
     private boolean envoyActive = false;
@@ -86,7 +86,7 @@ public class CrazyManager {
     private String centerString;
 
     private final HashMap<Block, Tier> activeEnvoys = new HashMap<>();
-    private final HashMap<Location, BukkitTask> activeSignals = new HashMap<>();
+    private final HashMap<Location, WrappedTask> activeSignals = new HashMap<>();
 
     private final HashMap<Entity, Block> fallingBlocks = new HashMap<>();
 
@@ -330,7 +330,7 @@ public class CrazyManager {
      */
     public void startEnvoyCountDown() {
         cancelEnvoyCooldownTime();
-        this.coolDownTask = new BukkitRunnable() {
+        this.coolDownTask = new WrappedRunnable() {
             @Override
             public void run() {
                 if (!isEnvoyActive()) {
@@ -766,7 +766,7 @@ public class CrazyManager {
             }
         }
 
-        this.runTimeTask = new BukkitRunnable() {
+        this.runTimeTask = new WrappedRunnable() {
             @Override
             public void run() {
                 EnvoyEndEvent event = new EnvoyEndEvent(EnvoyEndReason.OUT_OF_TIME);
@@ -825,12 +825,12 @@ public class CrazyManager {
      * @param tier The tier the signal is.
      */
     public void startSignalFlare(final Location loc, final Tier tier) {
-        BukkitTask task = new BukkitRunnable() {
+        WrappedTask task = new WrappedRunnable() {
             @Override
             public void run() {
                 firework(loc.clone().add(.5, 0, .5), tier);
             }
-        }.runTaskTimer(this.plugin, getTimeSeconds(tier.getSignalFlareTimer()) * 20L, getTimeSeconds(tier.getSignalFlareTimer()) * 20L);
+        }.runTaskTimerAtLocation(this.plugin, loc, getTimeSeconds(tier.getSignalFlareTimer()) * 20L, getTimeSeconds(tier.getSignalFlareTimer()) * 20L);
 
         this.activeSignals.put(loc, task);
     }

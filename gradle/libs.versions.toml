@@ -14,6 +14,7 @@ shadowjar = { id = "com.github.johnrengelman.shadow", version = "8.1.1" }
 [libraries]
 adventure = { module = "net.kyori:adventure-api", version.ref = "kyori_version" }
 minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "kyori_version" }
+foliaschedulerwrapper = { module = "com.github.NahuLD:folia-scheduler-wrapper", version = "v0.0.2" }
 
 cluster_paper = { module = "com.ryderbelserion.cluster.paper:cluster-paper", version.ref = "cluster_version" }
 cluster_api = { module = "com.ryderbelserion.cluster.api:cluster-api", version.ref = "cluster_version" }

@@ -17,6 +17,7 @@ import com.badbones69.crazyenvoys.listeners.FlareClickListener;
 import com.badbones69.crazyenvoys.support.libraries.PluginSupport;
 import com.badbones69.crazyenvoys.support.SkullCreator;
 import com.badbones69.crazyenvoys.support.placeholders.PlaceholderAPISupport;
+import me.nahu.scheduler.wrapper.FoliaWrappedJavaPlugin;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabCompleter;
@@ -26,11 +27,12 @@ import org.jetbrains.annotations.NotNull;
 import us.crazycrew.crazyenvoys.api.plugin.CrazyHandler;
 import us.crazycrew.crazyenvoys.common.config.types.ConfigKeys;
 
-public class CrazyEnvoys extends JavaPlugin {
+public class CrazyEnvoys extends FoliaWrappedJavaPlugin {
 
+    private static CrazyEnvoys instance;
     @NotNull
     public static CrazyEnvoys get() {
-        return JavaPlugin.getPlugin(CrazyEnvoys.class);
+        return instance;
     }
 
     private Methods methods;
@@ -49,6 +51,8 @@ public class CrazyEnvoys extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        CrazyEnvoys.instance = this;
+
         this.crazyHandler = new CrazyHandler(getDataFolder());
         this.crazyHandler.install();
 
@@ -87,6 +91,7 @@ public class CrazyEnvoys extends JavaPlugin {
         }
 
         this.crazyManager.reload(true);
+        CrazyEnvoys.instance = null;
     }
 
     public @NotNull CrazyHandler getCrazyHandler() {

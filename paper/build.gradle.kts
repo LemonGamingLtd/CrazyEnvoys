@@ -30,6 +30,8 @@ dependencies {
 
     implementation(libs.nbtapi)
 
+    implementation(libs.foliaschedulerwrapper)
+
     compileOnly(libs.holographicdisplays)
 
     compileOnly(libs.decentholograms)
