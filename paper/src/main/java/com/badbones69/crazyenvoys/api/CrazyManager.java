@@ -726,44 +726,49 @@ public class CrazyManager {
 
         for (Block block : dropLocations) {
             if (block != null) {
-                boolean spawnFallingBlock = false;
+                this.runTimeTask = new FoliaRunnable(this.plugin.getServer().getRegionScheduler(), block.getLocation()) {
+                    @Override
+                    public void run() {
+                        boolean spawnFallingBlock = false;
 
-                if (this.config.getProperty(ConfigKeys.envoy_falling_block_toggle)) {
-                    for (Entity entity : this.methods.getNearbyEntities(block.getLocation(), 40, 40, 40)) {
-                        if (entity instanceof Player) {
-                            spawnFallingBlock = true;
-                            break;
+                        if (config.getProperty(ConfigKeys.envoy_falling_block_toggle)) {
+                            for (Entity entity : methods.getNearbyEntities(block.getLocation(), 40, 40, 40)) {
+                                if (entity instanceof Player) {
+                                    spawnFallingBlock = true;
+                                    break;
+                                }
+                            }
+                        }
+
+                        if (spawnFallingBlock) {
+                            if (!block.getChunk().isLoaded()) block.getChunk().load();
+
+                            int fallingHeight = config.getProperty(ConfigKeys.envoy_falling_height);
+                            Material material = Material.valueOf(config.getProperty(ConfigKeys.envoy_falling_block_type));
+
+                            FallingBlock fallingBlock = block.getWorld().spawn(block.getLocation().add(.5, fallingHeight, .5), FallingBlock.class);
+                            fallingBlock.setBlockData(material.createBlockData());
+
+                            fallingBlock.setDropItem(false);
+                            fallingBlock.setHurtEntities(false);
+
+                            fallingBlocks.put(fallingBlock, block);
+                        } else {
+                            Tier tier = pickRandomTier();
+
+                            if (!block.getChunk().isLoaded()) block.getChunk().load();
+
+                            block.setType(tier.getPlacedBlockMaterial());
+
+                            if (tier.isHoloEnabled() && hasHologramPlugin()) hologramController.createHologram(block, tier);
+
+                            addActiveEnvoy(block, tier);
+                            locationSettings.addActiveLocation(block);
+
+                            if (tier.getSignalFlareToggle() && block.getChunk().isLoaded()) startSignalFlare(block.getLocation(), tier);
                         }
                     }
-                }
-
-                if (spawnFallingBlock) {
-                    if (!block.getChunk().isLoaded()) block.getChunk().load();
-
-                    int fallingHeight = this.config.getProperty(ConfigKeys.envoy_falling_height);
-                    Material material = Material.valueOf(this.config.getProperty(ConfigKeys.envoy_falling_block_type));
-
-                    FallingBlock fallingBlock = block.getWorld().spawn(block.getLocation().add(.5, fallingHeight, .5), FallingBlock.class);
-                    fallingBlock.setBlockData(material.createBlockData());
-
-                    fallingBlock.setDropItem(false);
-                    fallingBlock.setHurtEntities(false);
-
-                    this.fallingBlocks.put(fallingBlock, block);
-                } else {
-                    Tier tier = pickRandomTier();
-
-                    if (!block.getChunk().isLoaded()) block.getChunk().load();
-
-                    block.setType(tier.getPlacedBlockMaterial());
-
-                    if (tier.isHoloEnabled() && hasHologramPlugin()) this.hologramController.createHologram(block, tier);
-
-                    addActiveEnvoy(block, tier);
-                    this.locationSettings.addActiveLocation(block);
-
-                    if (tier.getSignalFlareToggle() && block.getChunk().isLoaded()) startSignalFlare(block.getLocation(), tier);
-                }
+                }.run(this.plugin);
             }
         }
 
