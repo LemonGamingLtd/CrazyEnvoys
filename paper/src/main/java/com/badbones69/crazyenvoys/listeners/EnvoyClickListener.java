@@ -14,6 +14,7 @@ import com.badbones69.crazyenvoys.api.objects.misc.Prize;
 import com.badbones69.crazyenvoys.api.objects.misc.Tier;
 import com.badbones69.crazyenvoys.util.MsgUtils;
 import com.ryderbelserion.vital.paper.enums.Support;
+import com.ryderbelserion.vital.paper.util.scheduler.FoliaRunnable;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -158,11 +159,16 @@ public class EnvoyClickListener implements Listener {
                 }
             }
 
-            for (String cmd : prize.getCommands()) {
-                if (Support.placeholder_api.isEnabled()) cmd = PlaceholderAPI.setPlaceholders(player, cmd);
+            new FoliaRunnable(this.plugin.getServer().getGlobalRegionScheduler()) {
+                @Override
+                public void run() {
+                    for (String cmd : prize.getCommands()) {
+                        if (Support.placeholder_api.isEnabled()) cmd = PlaceholderAPI.setPlaceholders(player, cmd);
 
-                this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), cmd.replace("{player}", player.getName()).replaceAll("\\{tier}", quoteReplacement(prize.getDisplayName())));
-            }
+                        plugin.getServer().dispatchCommand(plugin.getServer().getConsoleSender(), cmd.replace("{player}", player.getName()).replaceAll("\\{tier}", quoteReplacement(prize.getDisplayName())));
+                    }
+                }
+            }.run(this.plugin);
 
             for (ItemStack item : prize.getItems()) {
                 if (prize.getDropItems()) {

@@ -909,12 +909,18 @@ public class CrazyManager {
 
         for (Block spawnedLocation : locations) {
             if (spawnedLocation != null) {
-                if (!spawnedLocation.getChunk().isLoaded()) spawnedLocation.getChunk().load();
+                new FoliaRunnable(this.plugin.getServer().getRegionScheduler(), spawnedLocation.getLocation()) {
+                    @Override
+                    public void run() {
+                        if (!spawnedLocation.getChunk().isLoaded()) spawnedLocation.getChunk().load();
 
-                spawnedLocation.setType(Material.AIR);
-                stopSignalFlare(spawnedLocation.getLocation());
+                        spawnedLocation.setType(Material.AIR);
+                        stopSignalFlare(spawnedLocation.getLocation());
+                    }
+                }.run(this.plugin);
 
                 if (hasHologramPlugin()) this.hologramController.removeAllHolograms();
+
             }
         }
 
