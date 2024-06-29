@@ -25,7 +25,7 @@ import com.badbones69.crazyenvoys.support.holograms.HolographicDisplaysSupport;
 import com.badbones69.crazyenvoys.support.libraries.PluginSupport;
 import com.badbones69.crazyenvoys.support.claims.WorldGuardSupport;
 import com.badbones69.crazyenvoys.support.holograms.DecentHologramsSupport;
-import com.ryderbelserion.cluster.paper.utils.DyeUtils;
+import com.ryderbelserion.cluster.utils.DyeUtils;
 import me.nahu.scheduler.wrapper.runnable.WrappedRunnable;
 import me.nahu.scheduler.wrapper.task.WrappedTask;
 import us.crazycrew.crazyenvoys.other.MsgUtils;
@@ -726,43 +726,45 @@ public class CrazyManager {
 
         for (Block block : dropLocations) {
             if (block != null) {
-                boolean spawnFallingBlock = false;
+                this.plugin.getScheduler().runTaskAtLocation(block.getLocation(), () -> {
+                    boolean spawnFallingBlock = false;
 
-                if (this.config.getProperty(ConfigKeys.envoy_falling_block_toggle)) {
-                    for (Entity entity : this.methods.getNearbyEntities(block.getLocation(), 40, 40, 40)) {
-                        if (entity instanceof Player) {
-                            spawnFallingBlock = true;
-                            break;
+                    if (this.config.getProperty(ConfigKeys.envoy_falling_block_toggle)) {
+                        for (Entity entity : this.methods.getNearbyEntities(block.getLocation(), 40, 40, 40)) {
+                            if (entity instanceof Player) {
+                                spawnFallingBlock = true;
+                                break;
+                            }
                         }
                     }
-                }
 
-                if (spawnFallingBlock) {
-                    if (!block.getChunk().isLoaded()) block.getChunk().load();
+                    if (spawnFallingBlock) {
+                        if (!block.getChunk().isLoaded()) block.getChunk().load();
 
-                    int fallingHeight = this.config.getProperty(ConfigKeys.envoy_falling_height);
-                    Material fallingBlock = Material.valueOf(this.config.getProperty(ConfigKeys.envoy_falling_block_type));
+                        int fallingHeight = this.config.getProperty(ConfigKeys.envoy_falling_height);
+                        Material fallingBlock = Material.valueOf(this.config.getProperty(ConfigKeys.envoy_falling_block_type));
 
-                    //TODO() Test to make sure this works.
-                    FallingBlock chest = block.getWorld().spawnFallingBlock(block.getLocation().add(.5, fallingHeight, .5), fallingBlock.createBlockData());
-                    chest.setDropItem(false);
-                    chest.setHurtEntities(false);
+                        //TODO() Test to make sure this works.
+                        FallingBlock chest = block.getWorld().spawnFallingBlock(block.getLocation().add(.5, fallingHeight, .5), fallingBlock.createBlockData());
+                        chest.setDropItem(false);
+                        chest.setHurtEntities(false);
 
-                    this.fallingBlocks.put(chest, block);
-                } else {
-                    Tier tier = pickRandomTier();
+                        this.fallingBlocks.put(chest, block);
+                    } else {
+                        Tier tier = pickRandomTier();
 
-                    if (!block.getChunk().isLoaded()) block.getChunk().load();
+                        if (!block.getChunk().isLoaded()) block.getChunk().load();
 
-                    block.setType(tier.getPlacedBlockMaterial());
+                        block.setType(tier.getPlacedBlockMaterial());
 
-                    if (tier.isHoloEnabled() && hasHologramPlugin()) this.hologramController.createHologram(block, tier);
+                        if (tier.isHoloEnabled() && hasHologramPlugin()) this.hologramController.createHologram(block, tier);
 
-                    addActiveEnvoy(block, tier);
-                    this.locationSettings.addActiveLocation(block);
+                        addActiveEnvoy(block, tier);
+                        this.locationSettings.addActiveLocation(block);
 
-                    if (tier.getSignalFlareToggle() && block.getChunk().isLoaded()) startSignalFlare(block.getLocation(), tier);
-                }
+                        if (tier.getSignalFlareToggle() && block.getChunk().isLoaded()) startSignalFlare(block.getLocation(), tier);
+                    }
+                });
             }
         }
 
@@ -907,12 +909,14 @@ public class CrazyManager {
 
         for (Block spawnedLocation : locations) {
             if (spawnedLocation != null) {
-                if (!spawnedLocation.getChunk().isLoaded()) spawnedLocation.getChunk().load();
+                this.plugin.getScheduler().runTaskAtLocation(spawnedLocation.getLocation(), () -> {
+                    if (!spawnedLocation.getChunk().isLoaded()) spawnedLocation.getChunk().load();
 
-                spawnedLocation.setType(Material.AIR);
-                stopSignalFlare(spawnedLocation.getLocation());
+                    spawnedLocation.setType(Material.AIR);
+                    stopSignalFlare(spawnedLocation.getLocation());
 
-                if (hasHologramPlugin()) this.hologramController.removeAllHolograms();
+                    if (hasHologramPlugin()) this.hologramController.removeAllHolograms();
+                });
             }
         }
 

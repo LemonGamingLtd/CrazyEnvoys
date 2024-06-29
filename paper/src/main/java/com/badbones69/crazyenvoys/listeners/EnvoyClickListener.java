@@ -13,7 +13,6 @@ import com.badbones69.crazyenvoys.api.objects.LocationSettings;
 import com.badbones69.crazyenvoys.api.objects.misc.Prize;
 import com.badbones69.crazyenvoys.api.objects.misc.Tier;
 import com.badbones69.crazyenvoys.support.libraries.PluginSupport;
-import us.crazycrew.crazyenvoys.other.MsgUtils;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
@@ -28,15 +27,18 @@ import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
+import us.crazycrew.crazyenvoys.api.plugin.CrazyHandler;
 import us.crazycrew.crazyenvoys.common.config.ConfigManager;
 import us.crazycrew.crazyenvoys.common.config.types.ConfigKeys;
-import us.crazycrew.crazyenvoys.api.plugin.CrazyHandler;
+import us.crazycrew.crazyenvoys.other.MsgUtils;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
+
 import static java.util.regex.Matcher.quoteReplacement;
 
 public class EnvoyClickListener implements Listener {
@@ -52,7 +54,7 @@ public class EnvoyClickListener implements Listener {
     private final @NotNull LocationSettings locationSettings = this.plugin.getLocationSettings();
 
     private final @NotNull CrazyManager crazyManager = this.plugin.getCrazyManager();
-    
+
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerClick(PlayerInteractEvent event) {
         Player player = event.getPlayer();
@@ -144,11 +146,13 @@ public class EnvoyClickListener implements Listener {
                 }
             }
 
-            for (String cmd : prize.getCommands()) {
-                if (PluginSupport.PLACEHOLDER_API.isPluginEnabled()) cmd = PlaceholderAPI.setPlaceholders(player, cmd);
+            this.plugin.getScheduler().runTask(() -> {
+                for (String cmd : prize.getCommands()) {
+                    if (PluginSupport.PLACEHOLDER_API.isPluginEnabled()) cmd = PlaceholderAPI.setPlaceholders(player, cmd);
 
-                this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), cmd.replace("{player}", player.getName()).replaceAll("\\{tier}", quoteReplacement(prize.getDisplayName())));
-            }
+                    this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), cmd.replace("{player}", player.getName()).replaceAll("\\{tier}", quoteReplacement(prize.getDisplayName())));
+                }
+            });
 
             for (ItemStack item : prize.getItems()) {
                 if (prize.getDropItems()) {
@@ -223,7 +227,7 @@ public class EnvoyClickListener implements Listener {
             break;
         }
     }
-    
+
     private List<Prize> pickRandomPrizes(Tier tier) {
         ArrayList<Prize> prizes = new ArrayList<>();
         int max = tier.getBulkToggle() ? tier.getBulkMax() : 1;
@@ -236,7 +240,7 @@ public class EnvoyClickListener implements Listener {
 
         return prizes;
     }
-    
+
     private List<Prize> pickPrizesByChance(Tier tier) {
         ArrayList<Prize> prizes = new ArrayList<>();
         int maxBulk = tier.getBulkToggle() ? tier.getBulkMax() : 1;
@@ -251,7 +255,7 @@ public class EnvoyClickListener implements Listener {
 
         return prizes;
     }
-    
+
     private Tier pickRandomTier() {
         if (this.crazyManager.getTiers().size() == 1) return this.crazyManager.getTiers().get(0);
 

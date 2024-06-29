@@ -1,7 +1,7 @@
 [versions]
 kyori_version = "4.14.0"
 
-cluster_version = "4.1.2"
+cluster_version = "6.4"
 
 [plugins]
 hangar = { id = "io.papermc.hangar-publish-plugin", version = "0.1.0" }
@@ -16,8 +16,8 @@ adventure = { module = "net.kyori:adventure-api", version.ref = "kyori_version" 
 minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "kyori_version" }
 foliaschedulerwrapper = { module = "com.github.NahuLD:folia-scheduler-wrapper", version = "v0.0.2" }
 
-cluster_paper = { module = "com.ryderbelserion.cluster.paper:cluster-paper", version.ref = "cluster_version" }
-cluster_api = { module = "com.ryderbelserion.cluster.api:cluster-api", version.ref = "cluster_version" }
+cluster_paper = { module = "com.ryderbelserion.cluster:paper", version.ref = "cluster_version" }
+cluster_api = { module = "com.ryderbelserion.cluster:api", version.ref = "cluster_version" }
 
 nbtapi = { module = "de.tr7zw:item-nbt-api", version = "2.12.2" }
 
