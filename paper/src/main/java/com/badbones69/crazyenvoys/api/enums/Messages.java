@@ -22,7 +22,7 @@ public enum Messages {
 
     ended(MessageKeys.envoy_ended),
     warning(MessageKeys.envoy_warning),
-    started(MessageKeys.envoy_started),
+    started(MessageKeys.envoy_started, true),
     on_going(MessageKeys.hologram_on_going),
     not_running(MessageKeys.hologram_not_running),
     reloaded(MessageKeys.envoy_plugin_reloaded),
@@ -193,7 +193,13 @@ public enum Messages {
     }
 
     public void sendMessage(Player player, Map<String, String> placeholder) {
-        player.sendMessage(getMessage(placeholder).asString());
+        String message = getMessage(placeholder).asString();
+
+        if (message.isEmpty() || message.isBlank()) {
+            return;
+        }
+
+        player.sendMessage(message);
     }
 
     public void sendMessage(CommandSender sender) {
@@ -201,7 +207,13 @@ public enum Messages {
     }
 
     public void sendMessage(CommandSender sender, Map<String, String> placeholder) {
-        sender.sendMessage(getMessage(placeholder).asString());
+        String message = getMessage(placeholder).asString();
+
+        if (message.isEmpty() || message.isBlank()) {
+            return;
+        }
+
+        sender.sendMessage(message);
     }
 
     public void broadcastMessage(boolean ignore) {
@@ -212,9 +224,9 @@ public enum Messages {
         // Send in console because we should lol.
         sendMessage(this.plugin.getServer().getConsoleSender(), placeholder);
 
-        if (this.plugin.getCrazyHandler().getConfigManager().getConfig().getProperty(ConfigKeys.envoys_world_messages)) {
+        if (this.configManager.getConfig().getProperty(ConfigKeys.envoys_world_messages)) {
             for (Player player : this.plugin.getServer().getOnlinePlayers()) {
-                for (String world : this.plugin.getCrazyHandler().getConfigManager().getConfig().getProperty(ConfigKeys.envoys_allowed_worlds)) {
+                for (String world : this.configManager.getConfig().getProperty(ConfigKeys.envoys_allowed_worlds)) {
                     if (player.getWorld().getName().equalsIgnoreCase(world)) {
                         if (ignore) {
                             if (!this.crazyManager.isIgnoringMessages(player.getUniqueId())) sendMessage(player, placeholder);

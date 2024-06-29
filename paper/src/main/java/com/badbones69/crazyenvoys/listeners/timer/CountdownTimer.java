@@ -1,6 +1,7 @@
 package com.badbones69.crazyenvoys.listeners.timer;
 
 import com.badbones69.crazyenvoys.CrazyEnvoys;
+import me.nahu.scheduler.wrapper.task.WrappedTask;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,7 +14,7 @@ public class CountdownTimer implements Runnable {
     private final @NotNull CrazyEnvoys plugin = CrazyEnvoys.get();
 
     // Our scheduled task's assigned id, needed for canceling
-    private Integer assignedTaskId;
+    private WrappedTask assignedTask;
 
     // Seconds and shiz
     private final int seconds;
@@ -32,7 +33,7 @@ public class CountdownTimer implements Runnable {
     public void run() {
         // Is the timer up?
         if (this.secondsLeft < 1) {
-            if (this.assignedTaskId != null) this.plugin.getServer().getScheduler().cancelTask(this.assignedTaskId);
+            if (this.assignedTask != null) assignedTask.cancel();
 
             return;
         }
@@ -64,6 +65,6 @@ public class CountdownTimer implements Runnable {
      */
     public void scheduleTimer() {
         // Initialize our assigned task's id, for later use, so we can cancel.
-        this.assignedTaskId = this.plugin.getServer().getScheduler().scheduleSyncRepeatingTask(this.plugin, this, 0L, 20L);
+        this.assignedTask = this.plugin.getScheduler().runTaskTimer(this, 20L, 20L);
     }
 }

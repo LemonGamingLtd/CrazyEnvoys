@@ -113,7 +113,7 @@ public class Methods {
     }
 
     private void detonate(Firework firework) {
-        this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, firework::detonate, 2);
+        this.plugin.getScheduler().runTaskLaterAtEntity(firework, firework::detonate, 2);
     }
 
     public List<String> getPage(List<String> list, Integer page) {

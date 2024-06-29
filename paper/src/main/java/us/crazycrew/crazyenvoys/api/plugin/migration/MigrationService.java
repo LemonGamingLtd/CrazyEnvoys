@@ -265,7 +265,7 @@ public class MigrationService {
         String forceEnded = convert("{prefix}" + file.getString("Messages.Force-Ended"));
         
         String warning = convert("{prefix}" + file.getString("Messages.Warning"));
-        String started = convert("{prefix}" + file.getString("Messages.Started"));
+        List<String> started = file.getStringList("Messages.Started");
         String left = convert("{prefix}" + file.getString("Messages.Left"));
         String ended = convert("{prefix}" + file.getString("Messages.Ended"));
         
