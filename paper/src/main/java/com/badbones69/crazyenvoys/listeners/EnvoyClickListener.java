@@ -189,14 +189,14 @@ public class EnvoyClickListener implements Listener {
 
         Entity entity = event.getEntity();
 
-        if (!this.crazyManager.getFallingBlocks().containsKey(entity)) return;
+        if (!this.crazyManager.getFallingBlocks().containsKey(entity.getUniqueId())) return;
 
         event.setCancelled(true);
         checkEntity(entity);
     }
 
     private void checkEntity(Entity entity) {
-        Block block = this.crazyManager.getFallingBlocks().get(entity);
+        Block block = this.crazyManager.getFallingBlocks().get(entity.getUniqueId());
         Tier tier = pickRandomTier();
 
         if (block.getType() != Material.AIR) block = block.getLocation().add(0, 1, 0).getBlock();
@@ -217,9 +217,9 @@ public class EnvoyClickListener implements Listener {
         if (!this.crazyManager.isEnvoyActive()) return;
 
         for (Entity entity : event.getEntity().getNearbyEntities(1, 1, 1)) {
-            if (!this.crazyManager.getFallingBlocks().containsKey(entity)) continue;
+            if (!this.crazyManager.getFallingBlocks().containsKey(entity.getUniqueId())) continue;
 
-            Block block = this.crazyManager.getFallingBlocks().get(entity);
+            Block block = this.crazyManager.getFallingBlocks().get(entity.getUniqueId());
             event.setCancelled(true);
 
             checkEntity((Entity) block);

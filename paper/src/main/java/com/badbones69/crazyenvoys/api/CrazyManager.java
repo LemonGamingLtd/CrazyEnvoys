@@ -88,7 +88,7 @@ public class CrazyManager {
     private final HashMap<Block, Tier> activeEnvoys = new HashMap<>();
     private final HashMap<Location, WrappedTask> activeSignals = new HashMap<>();
 
-    private final HashMap<Entity, Block> fallingBlocks = new HashMap<>();
+    private final HashMap<UUID, Block> fallingBlocks = new HashMap<>();
 
     private final List<Tier> tiers = new ArrayList<>();
     private final List<Tier> cachedChances = new ArrayList<>();
@@ -413,13 +413,15 @@ public class CrazyManager {
         cleanLocations();
 
         for (Block block : getActiveEnvoys()) {
-            if (!block.getChunk().isLoaded()) block.getChunk().load();
+            this.plugin.getScheduler().runTaskAtLocation(block.getLocation(), () -> {
+                if (!block.getChunk().isLoaded()) block.getChunk().load();
 
-            block.setType(Material.AIR);
-            stopSignalFlare(block.getLocation());
+                block.setType(Material.AIR);
+                stopSignalFlare(block.getLocation());
+            });
         }
 
-        this.fallingBlocks.keySet().forEach(Entity :: remove);
+        //this.fallingBlocks.keySet().forEach(Entity :: remove);
 
         if (hasHologramPlugin()) this.hologramController.removeAllHolograms();
 
@@ -496,7 +498,7 @@ public class CrazyManager {
     /**
      * @return All falling blocks are currently going.
      */
-    public Map<Entity, Block> getFallingBlocks() {
+    public Map<UUID, Block> getFallingBlocks() {
         return this.fallingBlocks;
     }
 
@@ -504,7 +506,7 @@ public class CrazyManager {
      * @param entity Remove a falling block from the list.
      */
     public void removeFallingBlock(Entity entity) {
-        this.fallingBlocks.remove(entity);
+        this.fallingBlocks.remove(entity.getUniqueId());
     }
 
     /**
@@ -725,47 +727,45 @@ public class CrazyManager {
         }
 
         for (Block block : dropLocations) {
-            if (block != null) {
-                this.plugin.getScheduler().runTaskAtLocation(block.getLocation(), () -> {
-                    boolean spawnFallingBlock = false;
+            this.plugin.getScheduler().runTaskAtLocation(block.getLocation(), () -> {
+                boolean spawnFallingBlock = false;
 
-                    if (this.config.getProperty(ConfigKeys.envoy_falling_block_toggle)) {
-                        for (Entity entity : this.methods.getNearbyEntities(block.getLocation(), 40, 40, 40)) {
-                            if (entity instanceof Player) {
-                                spawnFallingBlock = true;
-                                break;
-                            }
+                if (this.config.getProperty(ConfigKeys.envoy_falling_block_toggle)) {
+                    for (Entity entity : this.methods.getNearbyEntities(block.getLocation(), 40, 40, 40)) {
+                        if (entity instanceof Player) {
+                            spawnFallingBlock = true;
+                            break;
                         }
                     }
+                }
 
-                    if (spawnFallingBlock) {
-                        if (!block.getChunk().isLoaded()) block.getChunk().load();
+                if (false) {
+                    if (!block.getChunk().isLoaded()) block.getChunk().load();
 
-                        int fallingHeight = this.config.getProperty(ConfigKeys.envoy_falling_height);
-                        Material fallingBlock = Material.valueOf(this.config.getProperty(ConfigKeys.envoy_falling_block_type));
+                    int fallingHeight = this.config.getProperty(ConfigKeys.envoy_falling_height);
+                    Material fallingBlock = Material.valueOf(this.config.getProperty(ConfigKeys.envoy_falling_block_type));
 
-                        //TODO() Test to make sure this works.
-                        FallingBlock chest = block.getWorld().spawnFallingBlock(block.getLocation().add(.5, fallingHeight, .5), fallingBlock.createBlockData());
-                        chest.setDropItem(false);
-                        chest.setHurtEntities(false);
+                    //TODO() Test to make sure this works.
+                    FallingBlock chest = block.getWorld().spawnFallingBlock(block.getLocation().add(.5, 5, .5), fallingBlock.createBlockData());
+                    chest.setDropItem(false);
+                    chest.setHurtEntities(false);
 
-                        this.fallingBlocks.put(chest, block);
-                    } else {
-                        Tier tier = pickRandomTier();
+                    this.fallingBlocks.put(chest.getUniqueId(), block);
+                } else {
+                    Tier tier = pickRandomTier();
 
-                        if (!block.getChunk().isLoaded()) block.getChunk().load();
+                    if (!block.getChunk().isLoaded()) block.getChunk().load();
 
-                        block.setType(tier.getPlacedBlockMaterial());
+                    block.setType(tier.getPlacedBlockMaterial());
 
-                        if (tier.isHoloEnabled() && hasHologramPlugin()) this.hologramController.createHologram(block, tier);
+                    if (tier.isHoloEnabled() && hasHologramPlugin()) this.hologramController.createHologram(block, tier);
 
-                        addActiveEnvoy(block, tier);
-                        this.locationSettings.addActiveLocation(block);
+                    addActiveEnvoy(block, tier);
+                    this.locationSettings.addActiveLocation(block);
 
-                        if (tier.getSignalFlareToggle() && block.getChunk().isLoaded()) startSignalFlare(block.getLocation(), tier);
-                    }
-                });
-            }
+                    if (tier.getSignalFlareToggle() && block.getChunk().isLoaded()) startSignalFlare(block.getLocation(), tier);
+                }
+            });
         }
 
         this.runTimeTask = new WrappedRunnable() {
