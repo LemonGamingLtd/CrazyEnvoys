@@ -763,6 +763,8 @@ public class CrazyManager {
                     addActiveEnvoy(block, tier);
                     this.locationSettings.addActiveLocation(block);
 
+                    ltd.lemongaming.crazyenvoys.util.EnemyUtils.spawnRandomSkeleton(block.getLocation().add(0.5, 1.0, 0.5));
+
                     if (tier.getSignalFlareToggle() && block.getChunk().isLoaded()) startSignalFlare(block.getLocation(), tier);
                 }
             });
