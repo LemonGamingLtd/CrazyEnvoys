@@ -1,27 +1,25 @@
 package ltd.lemongaming.crazyenvoys.util;
 
+import com.badbones69.crazyenvoys.support.SkullCreator;
+import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Blaze;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Evoker;
 import org.bukkit.entity.Mob;
-import org.bukkit.entity.Pillager;
-import org.bukkit.entity.Ravager;
-import org.bukkit.entity.Skeleton;
-import org.bukkit.entity.Vindicator;
-import org.bukkit.entity.Warden;
-import org.bukkit.entity.Witch;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.EnumMap;
 import java.util.Optional;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
@@ -33,41 +31,16 @@ public final class EnemyUtils {
     /**
      * Entity provider map.
      */
-    private static final EnumMap<EntityType, Function<Location, Mob>> ENTITY_PROVIDERS = new EnumMap<>(EntityType.class) {{
-        put(EntityType.SKELETON, location -> {
-            final Skeleton skeleton = location.getWorld().spawn(location, Skeleton.class);
-            return setupEntity(skeleton);
-        });
-        put(EntityType.BLAZE, location -> {
-            final Blaze blaze = location.getWorld().spawn(location, Blaze.class);
-            return setupEntity(blaze);
-        });
-        put(EntityType.EVOKER, location -> {
-            final Evoker evoker = location.getWorld().spawn(location, Evoker.class);
-            return setupEntity(evoker);
-        });
-        put(EntityType.VINDICATOR, location -> {
-            final Vindicator vindicator = location.getWorld().spawn(location, Vindicator.class);
-            return setupEntity(vindicator);
-        });
-        put(EntityType.WITCH, location -> {
-            final Witch witch = location.getWorld().spawn(location, Witch.class);
-            return setupEntity(witch);
-        });
-        put(EntityType.PILLAGER, location -> {
-            final Pillager pillager = location.getWorld().spawn(location, Pillager.class);
-            return setupEntity(pillager);
-        });
-        put(EntityType.RAVAGER, location -> {
-            final Ravager ravager = location.getWorld().spawn(location, Ravager.class);
-            ravager.addPassenger(spawnMob(EntityType.PILLAGER, location).orElseThrow());
-            return setupEntity(ravager);
-        });
-        put(EntityType.WARDEN, location -> {
-            final Warden warden = location.getWorld().spawn(location, Warden.class);
-            return setupEntity(warden);
-        });
-    }};
+    private static final EnumMap<EntityType, Function<Location, Mob>> ENTITY_PROVIDERS = new EnumMap<>(EntityType.class);
+
+    static {
+        addEntityType(EntityType.SKELETON);
+        addEntityType(EntityType.ZOMBIE);
+        addEntityType(EntityType.BLAZE);
+        addEntityType(EntityType.EVOKER);
+        addEntityType(EntityType.VINDICATOR);
+        addEntityType(EntityType.WITCH);
+    }
 
     private static final EntityType[] ENTITY_TYPES = ENTITY_PROVIDERS.keySet().toArray(EntityType[]::new);
 
@@ -79,43 +52,69 @@ public final class EnemyUtils {
     /**
      * The amount of health we will assign to them.
      */
-    private static final double DEFAULT_HEALTH = 200;
+    private static final double DEFAULT_HEALTH = 100;
 
     /**
      * Helmets they can spawn with.
      */
-    private static final Material[] HELMETS = new Material[]{
-        Material.AIR,
-        Material.LEATHER_HELMET,
-        Material.CHAINMAIL_HELMET,
-        Material.GOLDEN_HELMET,
-        Material.IRON_HELMET,
-        Material.DIAMOND_HELMET
+    private static final ItemStack[] HELMETS = new ItemStack[]{
+        // steelguard
+        new SkullCreator().itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGIzOTNlMmQ0N2E1MTNmZjAwODE2ZmU3Y2RhZGQzZGFkYjc2NzNhNzUyNmNjYWMzZDZlOGMxNTAzMWZlMGMxMiJ9fX0="),
+        // stoneguard
+        new SkullCreator().itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWIwMzEwZTAxZDk5OGRmYWZhYjJkMWZmZTZkNDZhNmUzZDAwMmFiMjQ0MDExOTVmMjMyN2Y0MGMzODM2ZmQ4ZiJ9fX0="),
+        // ironguard
+        new SkullCreator().itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDBlODFjMDA2ZDhmYzM3MGViODI4ODMwZTJkODcxZmQ4YWRjNjQwYTA0ZjE1YmRhMjhlMDM3NGJhYzQzZjNhNSJ9fX0="),
+        new ItemStack(Material.AIR),
+        new ItemStack(Material.LEATHER_HELMET),
+        new ItemStack(Material.CHAINMAIL_HELMET),
+        new ItemStack(Material.GOLDEN_HELMET),
+        new ItemStack(Material.IRON_HELMET),
+        new ItemStack(Material.DIAMOND_HELMET),
     };
 
     /**
      * Chestplates they can spawn with.
      */
-    private static final Material[] CHESTPLATES = new Material[]{
-        Material.AIR,
-        Material.LEATHER_CHESTPLATE,
-        Material.CHAINMAIL_CHESTPLATE,
-        Material.GOLDEN_CHESTPLATE,
-        Material.IRON_CHESTPLATE,
-        Material.DIAMOND_CHESTPLATE,
+    private static final ItemStack[] CHESTPLATES = new ItemStack[]{
+        new ItemStack(Material.AIR),
+        new ItemStack(Material.LEATHER_CHESTPLATE),
+        new ItemStack(Material.CHAINMAIL_CHESTPLATE),
+        new ItemStack(Material.GOLDEN_CHESTPLATE),
+        new ItemStack(Material.IRON_CHESTPLATE),
+        new ItemStack(Material.DIAMOND_CHESTPLATE),
+    };
+
+    /**
+     * Leggings they can spawn with.
+     */
+    private static final ItemStack[] LEGGINGS = new ItemStack[]{
+        new ItemStack(Material.AIR),
+        new ItemStack(Material.LEATHER_LEGGINGS),
+        new ItemStack(Material.CHAINMAIL_LEGGINGS),
+        new ItemStack(Material.GOLDEN_LEGGINGS),
+        new ItemStack(Material.IRON_LEGGINGS),
+        new ItemStack(Material.DIAMOND_LEGGINGS),
     };
 
     /**
      * Boots they can spawn with.
      */
-    private static final Material[] BOOTS = new Material[]{
-        Material.AIR,
-        Material.LEATHER_BOOTS,
-        Material.CHAINMAIL_BOOTS,
-        Material.GOLDEN_BOOTS,
-        Material.IRON_BOOTS,
-        Material.DIAMOND_BOOTS,
+    private static final ItemStack[] BOOTS = new ItemStack[]{
+        new ItemStack(Material.AIR),
+        new ItemStack(Material.LEATHER_BOOTS),
+        new ItemStack(Material.CHAINMAIL_BOOTS),
+        new ItemStack(Material.GOLDEN_BOOTS),
+        new ItemStack(Material.IRON_BOOTS),
+        new ItemStack(Material.DIAMOND_BOOTS),
     };
+
+    /**
+     * Potion effects.
+     */
+    private static final Collection<PotionEffect> POTION_EFFECTS = Set.of(
+        PotionEffectType.SPEED.createEffect(PotionEffect.INFINITE_DURATION, 2),
+        PotionEffectType.JUMP.createEffect(PotionEffect.INFINITE_DURATION, 2)
+    );
 
     private EnemyUtils() {
         // prevent initialization!
@@ -149,6 +148,19 @@ public final class EnemyUtils {
     }
 
     /**
+     * Streamline the entity type addition process.
+     *
+     * @param entityType {@link EntityType} entity type to handle.
+     */
+    private static void addEntityType(@NotNull EntityType entityType) {
+        Preconditions.checkArgument(entityType.isAlive(), "entity type cannot be a non-alive entity!");
+        ENTITY_PROVIDERS.put(entityType, location -> {
+            final Mob mob = (Mob) location.getWorld().spawn(location, entityType.getEntityClass()); // surely
+            return setupEntity(mob);
+        });
+    }
+
+    /**
      * Handle the entity setup for the given mob.
      *
      * @param entity Entity to setup.
@@ -165,9 +177,13 @@ public final class EnemyUtils {
         entity.setAggressive(true);
 
         final EntityEquipment equipment = entity.getEquipment();
-        equipment.setHelmet(new ItemStack(HELMETS[RANDOM.nextInt(HELMETS.length)]));
-        equipment.setChestplate(new ItemStack(CHESTPLATES[RANDOM.nextInt(CHESTPLATES.length)]));
-        equipment.setBoots(new ItemStack(BOOTS[RANDOM.nextInt(BOOTS.length)]));
+        equipment.setHelmet(HELMETS[RANDOM.nextInt(HELMETS.length)].clone());
+        equipment.setChestplate(CHESTPLATES[RANDOM.nextInt(CHESTPLATES.length)].clone());
+        equipment.setLeggings(LEGGINGS[RANDOM.nextInt(LEGGINGS.length)].clone());
+        equipment.setBoots(BOOTS[RANDOM.nextInt(BOOTS.length)].clone());
+
+        entity.addPotionEffects(POTION_EFFECTS);
+
         return entity;
     }
 }
