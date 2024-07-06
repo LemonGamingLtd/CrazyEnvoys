@@ -37,7 +37,6 @@ public final class EnemyUtils {
         addEntityType(EntityType.SKELETON);
         addEntityType(EntityType.ZOMBIE);
         addEntityType(EntityType.BLAZE);
-        addEntityType(EntityType.EVOKER);
         addEntityType(EntityType.VINDICATOR);
         addEntityType(EntityType.WITCH);
     }
