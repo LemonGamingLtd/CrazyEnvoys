@@ -7,6 +7,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 import org.bukkit.inventory.EntityEquipment;
@@ -175,6 +176,8 @@ public final class EnemyUtils {
         entity.setCanPickupItems(false);
         entity.setAggressive(true);
 
+        entity.clearLootTable();
+
         final EntityEquipment equipment = entity.getEquipment();
         equipment.setHelmet(HELMETS[RANDOM.nextInt(HELMETS.length)].clone());
         equipment.setChestplate(CHESTPLATES[RANDOM.nextInt(CHESTPLATES.length)].clone());
@@ -182,7 +185,6 @@ public final class EnemyUtils {
         equipment.setBoots(BOOTS[RANDOM.nextInt(BOOTS.length)].clone());
 
         entity.addPotionEffects(POTION_EFFECTS);
-
         return entity;
     }
 }
