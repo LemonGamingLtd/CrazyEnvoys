@@ -36,13 +36,13 @@ dependencies {
 
     compileOnly(libs.decentholograms)
 
-    compileOnly(libs.placeholderapi)
+    compileOnly("me.clip", "placeholderapi", "2.11.6")
 
     compileOnly(libs.itemsadder)
 
     compileOnly(libs.oraxen)
 
-    compileOnly("com.sk89q.worldguard", "worldguard-bukkit", "7.1.0-SNAPSHOT")
+    compileOnly("com.sk89q.worldguard", "worldguard-bukkit", "7.0.12")
 
     compileOnly(fileTree("libs").include("*.jar"))
 

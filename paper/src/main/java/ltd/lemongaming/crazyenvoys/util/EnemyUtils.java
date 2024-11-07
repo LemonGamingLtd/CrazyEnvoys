@@ -36,10 +36,6 @@ public final class EnemyUtils {
 
     static {
         addEntityType(EntityType.SKELETON);
-        addEntityType(EntityType.ZOMBIE);
-        addEntityType(EntityType.BLAZE);
-        addEntityType(EntityType.VINDICATOR);
-        addEntityType(EntityType.WITCH);
     }
 
     private static final EntityType[] ENTITY_TYPES = ENTITY_PROVIDERS.keySet().toArray(EntityType[]::new);
@@ -52,24 +48,19 @@ public final class EnemyUtils {
     /**
      * The amount of health we will assign to them.
      */
-    private static final double DEFAULT_HEALTH = 100;
+    private static final double DEFAULT_HEALTH = 20;
 
     /**
      * Helmets they can spawn with.
      */
     private static final ItemStack[] HELMETS = new ItemStack[]{
-        // steelguard
-        new SkullCreator().itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGIzOTNlMmQ0N2E1MTNmZjAwODE2ZmU3Y2RhZGQzZGFkYjc2NzNhNzUyNmNjYWMzZDZlOGMxNTAzMWZlMGMxMiJ9fX0="),
-        // stoneguard
-        new SkullCreator().itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWIwMzEwZTAxZDk5OGRmYWZhYjJkMWZmZTZkNDZhNmUzZDAwMmFiMjQ0MDExOTVmMjMyN2Y0MGMzODM2ZmQ4ZiJ9fX0="),
-        // ironguard
-        new SkullCreator().itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDBlODFjMDA2ZDhmYzM3MGViODI4ODMwZTJkODcxZmQ4YWRjNjQwYTA0ZjE1YmRhMjhlMDM3NGJhYzQzZjNhNSJ9fX0="),
-        new ItemStack(Material.AIR),
-        new ItemStack(Material.LEATHER_HELMET),
-        new ItemStack(Material.CHAINMAIL_HELMET),
-        new ItemStack(Material.GOLDEN_HELMET),
-        new ItemStack(Material.IRON_HELMET),
-        new ItemStack(Material.DIAMOND_HELMET),
+        // bandit
+        new SkullCreator().itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDE2YjM5NmYxMzJhMjgwYmQwNjE5OTYwNTg2NGYyNmIwMDk4MzNlOGI2MmY4OTM0M2Y4NDIyMWJmNDg5YjZhNCJ9fX0="),
+        // new ItemStack(Material.LEATHER_HELMET),
+        // new ItemStack(Material.CHAINMAIL_HELMET),
+        // new ItemStack(Material.GOLDEN_HELMET),
+        // new ItemStack(Material.IRON_HELMET),
+        // new ItemStack(Material.DIAMOND_HELMET),
     };
 
     /**
@@ -77,11 +68,7 @@ public final class EnemyUtils {
      */
     private static final ItemStack[] CHESTPLATES = new ItemStack[]{
         new ItemStack(Material.AIR),
-        new ItemStack(Material.LEATHER_CHESTPLATE),
         new ItemStack(Material.CHAINMAIL_CHESTPLATE),
-        new ItemStack(Material.GOLDEN_CHESTPLATE),
-        new ItemStack(Material.IRON_CHESTPLATE),
-        new ItemStack(Material.DIAMOND_CHESTPLATE),
     };
 
     /**
@@ -89,11 +76,7 @@ public final class EnemyUtils {
      */
     private static final ItemStack[] LEGGINGS = new ItemStack[]{
         new ItemStack(Material.AIR),
-        new ItemStack(Material.LEATHER_LEGGINGS),
         new ItemStack(Material.CHAINMAIL_LEGGINGS),
-        new ItemStack(Material.GOLDEN_LEGGINGS),
-        new ItemStack(Material.IRON_LEGGINGS),
-        new ItemStack(Material.DIAMOND_LEGGINGS),
     };
 
     /**
@@ -101,19 +84,21 @@ public final class EnemyUtils {
      */
     private static final ItemStack[] BOOTS = new ItemStack[]{
         new ItemStack(Material.AIR),
-        new ItemStack(Material.LEATHER_BOOTS),
         new ItemStack(Material.CHAINMAIL_BOOTS),
-        new ItemStack(Material.GOLDEN_BOOTS),
-        new ItemStack(Material.IRON_BOOTS),
-        new ItemStack(Material.DIAMOND_BOOTS),
+    };
+
+    private static final ItemStack[] MAIN_HAND = new ItemStack[]{
+        new ItemStack(Material.STONE_SWORD),
+        new ItemStack(Material.STONE_AXE),
+        new ItemStack(Material.BOW),
     };
 
     /**
      * Potion effects.
      */
     private static final Collection<PotionEffect> POTION_EFFECTS = Set.of(
-        PotionEffectType.SPEED.createEffect(PotionEffect.INFINITE_DURATION, 2),
-        PotionEffectType.JUMP.createEffect(PotionEffect.INFINITE_DURATION, 2)
+        PotionEffectType.SPEED.createEffect(PotionEffect.INFINITE_DURATION, 1),
+        PotionEffectType.JUMP.createEffect(PotionEffect.INFINITE_DURATION, 1)
     );
 
     private EnemyUtils() {
@@ -170,7 +155,7 @@ public final class EnemyUtils {
         entity.setMaxHealth(DEFAULT_HEALTH);
         entity.setHealth(DEFAULT_HEALTH);
 
-        entity.customName(Component.text("Envoy Guard!", NamedTextColor.RED, TextDecoration.BOLD));
+        entity.customName(Component.text("Bandit"));
         entity.setCustomNameVisible(true);
 
         entity.setCanPickupItems(false);
@@ -183,6 +168,7 @@ public final class EnemyUtils {
         equipment.setChestplate(CHESTPLATES[RANDOM.nextInt(CHESTPLATES.length)].clone());
         equipment.setLeggings(LEGGINGS[RANDOM.nextInt(LEGGINGS.length)].clone());
         equipment.setBoots(BOOTS[RANDOM.nextInt(BOOTS.length)].clone());
+        equipment.setItemInMainHand(MAIN_HAND[RANDOM.nextInt(MAIN_HAND.length)].clone());
 
         entity.addPotionEffects(POTION_EFFECTS);
         return entity;
