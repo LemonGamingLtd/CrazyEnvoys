@@ -6,8 +6,6 @@ plugins {
 
     alias(libs.plugins.modrinth)
 
-    alias(libs.plugins.runpaper)
-
     alias(libs.plugins.hangar)
 
     `maven-publish`
@@ -64,61 +62,6 @@ val description = """
 val component: SoftwareComponent = components["java"]
 
 tasks {
-    val file = project.layout.buildDirectory.file("libs/${rootProject.name}-${rootProject.version}.jar").get()
-
-    // Publish to hangar.papermc.io.
-    hangarPublish {
-        publications.register("plugin") {
-            version.set("${rootProject.version}")
-
-            id.set(rootProject.name)
-
-            channel.set(type)
-
-            changelog.set(description)
-
-            apiKey.set(System.getenv("hangar_key"))
-
-            platforms {
-                register(Platforms.PAPER) {
-                    jar.set(file)
-
-                    platformVersions.set(listOf(mcVersion))
-                }
-            }
-        }
-    }
-
-    // Publish to modrinth.
-    modrinth {
-        autoAddDependsOn.set(false)
-
-        token.set(System.getenv("modrinth_token"))
-
-        projectId.set(rootProject.name.lowercase())
-
-        versionName.set("${rootProject.name} ${rootProject.version}")
-
-        versionNumber.set("${rootProject.version}")
-
-        versionType.set(type.lowercase())
-
-        uploadFile.set(file)
-
-        gameVersions.add(mcVersion)
-
-        changelog.set(description)
-
-        loaders.addAll("paper", "purpur")
-    }
-
-    // Runs a test server.
-    runServer {
-        jvmArgs("-Dnet.kyori.ansi.colorLevel=truecolor")
-
-        minecraftVersion(mcVersion)
-    }
-
     // Assembles the plugin.
     assemble {
         dependsOn(reobfJar)

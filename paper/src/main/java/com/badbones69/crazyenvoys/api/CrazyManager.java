@@ -603,29 +603,32 @@ public class CrazyManager {
         if (this.config.getProperty(ConfigKeys.envoys_random_locations)) {
             if (!testCenter()) return new ArrayList<>();
 
-            List<Block> minimumRadiusBlocks = getBlocks(this.center.clone(), this.config.getProperty(ConfigKeys.envoys_min_radius));
+            final int finalMaxSpawns = maxSpawns;
+            this.plugin.getScheduler().runTaskAtLocation(this.center, () -> {
+                List<Block> minimumRadiusBlocks = getBlocks(this.center.clone(), this.config.getProperty(ConfigKeys.envoys_min_radius));
 
-            while (this.locationSettings.getDropLocations().size() < maxSpawns) {
-                int maxRadius = this.config.getProperty(ConfigKeys.envoys_max_radius);
-                Location location = this.center.clone();
-                location.add(-(maxRadius) + new Random().nextInt(maxRadius * 2), 0, -(maxRadius) + new Random().nextInt(maxRadius * 2));
-                location = location.getWorld().getHighestBlockAt(location).getLocation();
+                while (this.locationSettings.getDropLocations().size() < finalMaxSpawns) {
+                    int maxRadius = this.config.getProperty(ConfigKeys.envoys_max_radius);
+                    Location location = this.center.clone();
+                    location.add(-(maxRadius) + new Random().nextInt(maxRadius * 2), 0, -(maxRadius) + new Random().nextInt(maxRadius * 2));
+                    location = location.getWorld().getHighestBlockAt(location).getLocation();
 
-                if (!location.getChunk().isLoaded() && !location.getChunk().load()) continue;
+                    if (!location.getChunk().isLoaded() && !location.getChunk().load()) continue;
 
-                if (location.getBlockY() <= location.getWorld().getMinHeight() ||
+                    if (location.getBlockY() <= location.getWorld().getMinHeight() ||
                         minimumRadiusBlocks.contains(location.getBlock()) || minimumRadiusBlocks.contains(location.clone().add(0, 1, 0).getBlock()) ||
                         this.locationSettings.getDropLocations().contains(location.getBlock()) || this.locationSettings.getDropLocations().contains(location.clone().add(0, 1, 0).getBlock()) ||
                         this.blacklistedBlocks.contains(location.getBlock().getType())) continue;
 
-                Block block = location.getBlock();
-                if (block.getType() != Material.AIR) block = block.getLocation().add(0, 1, 0).getBlock();
+                    Block block = location.getBlock();
+                    if (block.getType() != Material.AIR) block = block.getLocation().add(0, 1, 0).getBlock();
 
-                this.locationSettings.addDropLocations(block);
-            }
+                    this.locationSettings.addDropLocations(block);
+                }
 
-            Files.USERS.getFile().set("Locations.Spawned", getBlockList(locationSettings.getDropLocations()));
-            Files.USERS.saveFile();
+                Files.USERS.getFile().set("Locations.Spawned", getBlockList(locationSettings.getDropLocations()));
+                Files.USERS.saveFile();
+            });
         } else {
             if (this.config.getProperty(ConfigKeys.envoys_max_drops_toggle) || this.config.getProperty(ConfigKeys.envoys_random_drops)) {
                 if (this.locationSettings.getSpawnLocations().size() <= maxSpawns) {
