@@ -1,6 +1,8 @@
 package com.badbones69.crazyenvoys.support;
 
 import com.badbones69.crazyenvoys.CrazyEnvoys;
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -128,17 +130,20 @@ public class SkullCreator {
     /**
      * Applies the base64 string to the ItemStack.
      *
-     * @param item The ItemStack to put the base64 onto
      * @param base64 The base64 string containing the texture
      * @return The head with a custom texture
      */
-    public ItemStack itemWithBase64(ItemStack item, String base64) {
-        notNull(item, "item");
+    public ItemStack itemWithBase64(ItemStack __, String base64) {
         notNull(base64, "base64");
 
-        UUID hashAsId = new UUID(base64.hashCode(), base64.hashCode());
-        return this.plugin.getServer().getUnsafe().modifyItemStack(item, "{SkullOwner:{Id:\"" + hashAsId + "\",Properties:{textures:[{Value:\"" + base64 + "\"}]}}}");
-    }
+        final ItemStack item = new ItemStack(Material.PLAYER_HEAD);
+        item.editMeta(SkullMeta.class, skullMeta -> {
+            final UUID id = new UUID(base64.hashCode(), base64.hashCode());
+            final PlayerProfile playerProfile = Bukkit.createProfile(id, "CC-SKULL");
+            playerProfile.setProperty(new ProfileProperty("texture", base64));
+            skullMeta.setPlayerProfile(playerProfile);
+        });
+        return item;    }
 
     /**
      * Sets the block to a skull with the given name.
@@ -153,7 +158,8 @@ public class SkullCreator {
         notNull(block, "block");
         notNull(name, "name");
 
-        setBlockType(block);((Skull) block.getState()).setOwningPlayer(Bukkit.getOfflinePlayer(name));
+        setBlockType(block);
+        ((Skull) block.getState()).setOwningPlayer(Bukkit.getOfflinePlayer(name));
     }
 
     /**
