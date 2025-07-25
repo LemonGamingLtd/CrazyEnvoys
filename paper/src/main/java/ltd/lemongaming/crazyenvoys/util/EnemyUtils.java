@@ -4,6 +4,8 @@ import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -159,7 +161,8 @@ public final class EnemyUtils {
         entity.setMaxHealth(DEFAULT_HEALTH);
         entity.setHealth(DEFAULT_HEALTH);
 
-        entity.customName(Component.text("Bandit"));
+        final TextColor TEXT_COLOR = TextColor.color(RANDOM.nextInt(0xFFFFFF));
+        entity.customName(Component.text("Bandit!").color(TEXT_COLOR).decorate(TextDecoration.BOLD));
         entity.setCustomNameVisible(true);
 
         entity.setCanPickupItems(false);
