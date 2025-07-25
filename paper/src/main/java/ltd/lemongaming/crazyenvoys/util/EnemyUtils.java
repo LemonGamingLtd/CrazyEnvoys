@@ -55,7 +55,7 @@ public final class EnemyUtils {
      */
     private static final ItemStack[] HELMETS = new ItemStack[]{
         // bandit
-        new SkullCreator().itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDE2YjM5NmYxMzJhMjgwYmQwNjE5OTYwNTg2NGYyNmIwMDk4MzNlOGI2MmY4OTM0M2Y4NDIyMWJmNDg5YjZhNCJ9fX0="),
+        new SkullCreator().itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2VlZTJjYjQxY2VkZTVhYTQ0MTE3MTYyNGUxZTFlMzg4YjgyNjJhNGEwYmI5ZGZiZmQ4ODljYTAyYzQxY2IifX19"),
         // new ItemStack(Material.LEATHER_HELMET),
         // new ItemStack(Material.CHAINMAIL_HELMET),
         // new ItemStack(Material.GOLDEN_HELMET),

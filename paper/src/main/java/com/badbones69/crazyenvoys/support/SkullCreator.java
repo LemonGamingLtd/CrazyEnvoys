@@ -10,6 +10,7 @@ import org.bukkit.block.Skull;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
@@ -31,7 +32,6 @@ public class SkullCreator {
      *
      * @param name The Player's name
      * @return The head of the Player
-     *
      * @deprecated names don't make for good identifiers
      */
     @Deprecated
@@ -47,7 +47,6 @@ public class SkullCreator {
      * @param item The item to apply the name to
      * @param name The Player's name
      * @return The head of the Player
-     *
      * @deprecated names don't make for good identifiers
      */
     @Deprecated
@@ -74,7 +73,7 @@ public class SkullCreator {
      * Creates a player skull based on a UUID. 1.13 only.
      *
      * @param item The item to apply the name to
-     * @param id The Player's UUID
+     * @param id   The Player's UUID
      * @return The head of the Player
      */
     public ItemStack itemWithUuid(ItemStack item, UUID id) {
@@ -105,7 +104,7 @@ public class SkullCreator {
      * Creates a player skull based on a Mojang server URL.
      *
      * @param item The item to apply the skin to
-     * @param url The URL of the Mojang skin
+     * @param url  The URL of the Mojang skin
      * @return The head associated with the URL
      */
     public ItemStack itemWithUrl(ItemStack item, String url) {
@@ -139,18 +138,19 @@ public class SkullCreator {
         final ItemStack item = new ItemStack(Material.PLAYER_HEAD);
         item.editMeta(SkullMeta.class, skullMeta -> {
             final UUID id = new UUID(base64.hashCode(), base64.hashCode());
-            final PlayerProfile playerProfile = Bukkit.createProfile(id, "CC-SKULL");
+            final PlayerProfile playerProfile = Bukkit.createProfile(id);
             playerProfile.setProperty(new ProfileProperty("texture", base64));
+            playerProfile.complete(true);
             skullMeta.setPlayerProfile(playerProfile);
         });
-        return item;    }
+        return item;
+    }
 
     /**
      * Sets the block to a skull with the given name.
      *
      * @param block The block to set
-     * @param name The player to set it to
-     *
+     * @param name  The player to set it to
      * @deprecated names don't make for good identifiers
      */
     @Deprecated
@@ -166,20 +166,21 @@ public class SkullCreator {
      * Sets the block to a skull with the given UUID.
      *
      * @param block The block to set
-     * @param id The player to set it to
+     * @param id    The player to set it to
      */
     public void blockWithUuid(Block block, UUID id) {
         notNull(block, "block");
         notNull(id, "id");
 
-        setBlockType(block);((Skull) block.getState()).setOwningPlayer(Bukkit.getOfflinePlayer(id));
+        setBlockType(block);
+        ((Skull) block.getState()).setOwningPlayer(Bukkit.getOfflinePlayer(id));
     }
 
     /**
      * Sets the block to a skull with the given UUID.
      *
      * @param block The block to set
-     * @param url The mojang URL to set it to use
+     * @param url   The mojang URL to set it to use
      */
     public void blockWithUrl(Block block, String url) {
         notNull(block, "block");
@@ -191,7 +192,7 @@ public class SkullCreator {
     /**
      * Sets the block to a skull with the given UUID.
      *
-     * @param block The block to set
+     * @param block  The block to set
      * @param base64 The base64 to set it to use
      */
     public void blockWithBase64(Block block, String base64) {
@@ -201,11 +202,11 @@ public class SkullCreator {
         UUID hashAsId = new UUID(base64.hashCode(), base64.hashCode());
 
         String args = String.format(
-                "%d %d %d %s",
-                block.getX(),
-                block.getY(),
-                block.getZ(),
-                "{Owner:{Id:\"" + hashAsId + "\",Properties:{textures:[{Value:\"" + base64 + "\"}]}}}"
+            "%d %d %d %s",
+            block.getX(),
+            block.getY(),
+            block.getZ(),
+            "{Owner:{Id:\"" + hashAsId + "\",Properties:{textures:[{Value:\"" + base64 + "\"}]}}}"
         );
 
         this.plugin.getServer().dispatchCommand(this.plugin.getServer().getConsoleSender(), "data merge block " + args);
