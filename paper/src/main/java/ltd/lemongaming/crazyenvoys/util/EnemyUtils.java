@@ -1,17 +1,17 @@
 package ltd.lemongaming.crazyenvoys.util;
 
-import com.badbones69.crazyenvoys.support.SkullCreator;
+import com.destroystokyo.paper.profile.PlayerProfile;
+import com.destroystokyo.paper.profile.ProfileProperty;
 import com.google.common.base.Preconditions;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Mob;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +21,7 @@ import java.util.EnumMap;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
@@ -53,15 +54,18 @@ public final class EnemyUtils {
     /**
      * Helmets they can spawn with.
      */
-    private static final ItemStack[] HELMETS = new ItemStack[]{
-        // bandit
-        new SkullCreator().itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2VlZTJjYjQxY2VkZTVhYTQ0MTE3MTYyNGUxZTFlMzg4YjgyNjJhNGEwYmI5ZGZiZmQ4ODljYTAyYzQxY2IifX19"),
-        // new ItemStack(Material.LEATHER_HELMET),
-        // new ItemStack(Material.CHAINMAIL_HELMET),
-        // new ItemStack(Material.GOLDEN_HELMET),
-        // new ItemStack(Material.IRON_HELMET),
-        // new ItemStack(Material.DIAMOND_HELMET),
-    };
+    private static final String HELMET_TEXTURE = "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2VlZTJjYjQxY2VkZTVhYTQ0MTE3MTYyNGUxZTFlMzg4YjgyNjJhNGEwYmI5ZGZiZmQ4ODljYTAyYzQxY2IifX19";
+    private static final ItemStack HELMET = new ItemStack(Material.PLAYER_HEAD);
+
+    static {
+        HELMET.editMeta(SkullMeta.class, skullMeta -> {
+            final UUID textureHashcodeAsId = new UUID(HELMET_TEXTURE.hashCode(), HELMET_TEXTURE.hashCode());
+            final PlayerProfile playerProfile = Bukkit.createProfile(textureHashcodeAsId);
+            playerProfile.setProperty(new ProfileProperty("textures", HELMET_TEXTURE));
+            playerProfile.complete(true);
+            skullMeta.setPlayerProfile(playerProfile);
+        });
+    }
 
     /**
      * Chestplates they can spawn with.
@@ -164,7 +168,7 @@ public final class EnemyUtils {
         entity.clearLootTable();
 
         final EntityEquipment equipment = entity.getEquipment();
-        equipment.setHelmet(HELMETS[RANDOM.nextInt(HELMETS.length)].clone());
+        equipment.setHelmet(HELMET);
         equipment.setChestplate(CHESTPLATES[RANDOM.nextInt(CHESTPLATES.length)].clone());
         equipment.setLeggings(LEGGINGS[RANDOM.nextInt(LEGGINGS.length)].clone());
         equipment.setBoots(BOOTS[RANDOM.nextInt(BOOTS.length)].clone());
