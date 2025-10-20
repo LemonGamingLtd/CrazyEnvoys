@@ -1037,8 +1037,8 @@ public class CrazyManager {
 
         FireworkMeta fireworkMeta = firework.getFireworkMeta();
 
-        fireworkMeta.addEffects(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(colors).trail(true).flicker(false).build());
-        fireworkMeta.setPower(5);
+        fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(colors).trail(false).flicker(false).build());
+        //fireworkMeta.setPower(1);
         firework.setFireworkMeta(fireworkMeta);
 
         this.methods.addFirework(firework);
