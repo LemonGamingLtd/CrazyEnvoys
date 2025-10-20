@@ -20,15 +20,14 @@ import com.badbones69.crazyenvoys.api.objects.LocationSettings;
 import com.badbones69.crazyenvoys.api.objects.misc.Prize;
 import com.badbones69.crazyenvoys.api.objects.misc.Tier;
 import com.badbones69.crazyenvoys.listeners.timer.CountdownTimer;
+import com.badbones69.crazyenvoys.support.claims.WorldGuardSupport;
 import com.badbones69.crazyenvoys.support.holograms.CMIHologramsSupport;
+import com.badbones69.crazyenvoys.support.holograms.DecentHologramsSupport;
 import com.badbones69.crazyenvoys.support.holograms.HolographicDisplaysSupport;
 import com.badbones69.crazyenvoys.support.libraries.PluginSupport;
-import com.badbones69.crazyenvoys.support.claims.WorldGuardSupport;
-import com.badbones69.crazyenvoys.support.holograms.DecentHologramsSupport;
 import com.ryderbelserion.cluster.utils.DyeUtils;
 import me.nahu.scheduler.wrapper.runnable.WrappedRunnable;
 import me.nahu.scheduler.wrapper.task.WrappedTask;
-import us.crazycrew.crazyenvoys.other.MsgUtils;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
@@ -42,14 +41,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.jetbrains.annotations.NotNull;
+import us.crazycrew.crazyenvoys.api.plugin.CrazyHandler;
 import us.crazycrew.crazyenvoys.common.config.ConfigManager;
 import us.crazycrew.crazyenvoys.common.config.types.ConfigKeys;
-import us.crazycrew.crazyenvoys.api.plugin.CrazyHandler;
+import us.crazycrew.crazyenvoys.other.MsgUtils;
 import us.crazycrew.crazyenvoys.support.MetricsHandler;
+
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -71,7 +74,7 @@ public class CrazyManager {
     private final @NotNull EditorSettings editorSettings = plugin.getEditorSettings();
     private final @NotNull CoolDownSettings coolDownSettings = plugin.getCoolDownSettings();
     private final @NotNull LocationSettings locationSettings = plugin.getLocationSettings();
-    
+
     private CountdownTimer countdownTimer;
 
     private WrappedTask runTimeTask;
@@ -87,6 +90,7 @@ public class CrazyManager {
 
     private final HashMap<Block, Tier> activeEnvoys = new HashMap<>();
     private final HashMap<Location, WrappedTask> activeSignals = new HashMap<>();
+    private final Set<Entity> npcs = new HashSet<>();
 
     private final HashMap<UUID, Block> fallingBlocks = new HashMap<>();
 
@@ -179,7 +183,8 @@ public class CrazyManager {
         // Populate the array list.
         this.locationSettings.populateMap();
 
-        if (this.plugin.isLogging() && !this.locationSettings.getFailedLocations().isEmpty()) this.plugin.getLogger().severe("Failed to load " + this.locationSettings.getFailedLocations().size() + " locations and will reattempt in 10s.");
+        if (this.plugin.isLogging() && !this.locationSettings.getFailedLocations().isEmpty())
+            this.plugin.getLogger().severe("Failed to load " + this.locationSettings.getFailedLocations().size() + " locations and will reattempt in 10s.");
 
         if (Calendar.getInstance().after(getNextEnvoy())) setEnvoyActive(false);
 
@@ -258,16 +263,16 @@ public class CrazyManager {
                 List<String> commands = new ArrayList<>();
 
                 file.getStringList(path + "Commands").forEach(line -> commands.add(line.replaceAll("%reward%", "{reward}")
-                        .replaceAll("%player%", "{player}")
-                        .replaceAll("%Player%", "{player}")
-                        .replaceAll("%tier%", "{tier}")));
+                    .replaceAll("%player%", "{player}")
+                    .replaceAll("%Player%", "{player}")
+                    .replaceAll("%tier%", "{tier}")));
 
                 List<String> messages = new ArrayList<>();
 
                 file.getStringList(path + "Messages").forEach(line -> messages.add(line.replaceAll("%reward%", "{reward}")
-                        .replaceAll("%player%", "{player}")
-                        .replaceAll("%Player%", "{player}")
-                        .replaceAll("%tier%", "{tier}")));
+                    .replaceAll("%player%", "{player}")
+                    .replaceAll("%Player%", "{player}")
+                    .replaceAll("%tier%", "{tier}")));
 
                 boolean dropItems = file.getBoolean(path + "Drop-Items");
                 List<ItemBuilder> items = ItemBuilder.convertStringList(file.getStringList(path + "Items"));
@@ -307,7 +312,8 @@ public class CrazyManager {
             this.blacklistedBlocks.add(Material.STONE_SLAB);
         }
 
-        if (PluginSupport.WORLD_GUARD.isPluginEnabled() && PluginSupport.WORLD_EDIT.isPluginEnabled()) this.worldGuardSupportVersion = new WorldGuardSupport();
+        if (PluginSupport.WORLD_GUARD.isPluginEnabled() && PluginSupport.WORLD_EDIT.isPluginEnabled())
+            this.worldGuardSupportVersion = new WorldGuardSupport();
 
         if (PluginSupport.DECENT_HOLOGRAMS.isPluginEnabled()) {
             this.hologramController = new DecentHologramsSupport();
@@ -318,7 +324,8 @@ public class CrazyManager {
         } else if (PluginSupport.HOLOGRAPHIC_DISPLAYS.isPluginEnabled()) {
             this.hologramController = new HolographicDisplaysSupport();
             this.plugin.getLogger().info("Holographic Displays support has been enabled.");
-        } else this.plugin.getLogger().warning("No holograms plugin were found. If using CMI, make sure holograms module is enabled.");
+        } else
+            this.plugin.getLogger().warning("No holograms plugin were found. If using CMI, make sure holograms module is enabled.");
 
         this.locationSettings.fixLocations();
 
@@ -429,6 +436,18 @@ public class CrazyManager {
         this.activeEnvoys.clear();
     }
 
+    /**
+     * Despawn all active npcs.
+     */
+    public void removeAllNpcs() {
+        for (final Entity entity : this.npcs) {
+            if (entity != null) {
+                this.plugin.getScheduler().runTaskAtEntity(entity, entity::remove);
+            }
+        }
+        this.npcs.clear();
+    }
+
     public WorldGuardSupport getWorldGuardPluginSupport() {
         return this.worldGuardSupportVersion;
     }
@@ -446,6 +465,13 @@ public class CrazyManager {
      */
     public Set<Block> getActiveEnvoys() {
         return this.activeEnvoys.keySet();
+    }
+
+    /**
+     * @return All NPCs that are active.
+     */
+    public Set<Entity> getNpcs() {
+        return npcs;
     }
 
     /**
@@ -571,7 +597,8 @@ public class CrazyManager {
     public void cancelEnvoyRunTime() {
         try {
             this.runTimeTask.cancel();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     /**
@@ -580,7 +607,8 @@ public class CrazyManager {
     public void cancelEnvoyCooldownTime() {
         try {
             this.coolDownTask.cancel();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     public List<Block> generateSpawnLocations() {
@@ -761,14 +789,17 @@ public class CrazyManager {
 
                     block.setType(tier.getPlacedBlockMaterial());
 
-                    if (tier.isHoloEnabled() && hasHologramPlugin()) this.hologramController.createHologram(block, tier);
+                    if (tier.isHoloEnabled() && hasHologramPlugin())
+                        this.hologramController.createHologram(block, tier);
 
                     addActiveEnvoy(block, tier);
                     this.locationSettings.addActiveLocation(block);
 
-                    ltd.lemongaming.crazyenvoys.util.EnemyUtils.spawnRandomMob(block.getLocation().add(0.5, 1.0, 0.5));
+                    final Entity npc = ltd.lemongaming.crazyenvoys.util.EnemyUtils.spawnRandomMob(block.getLocation().add(0.5, 1.0, 0.5));
+                    npcs.add(npc);
 
-                    if (tier.getSignalFlareToggle() && block.getChunk().isLoaded()) startSignalFlare(block.getLocation(), tier);
+                    if (tier.getSignalFlareToggle() && block.getChunk().isLoaded())
+                        startSignalFlare(block.getLocation(), tier);
                 }
             });
         }
@@ -795,6 +826,7 @@ public class CrazyManager {
         removeAllEnvoys();
         setEnvoyActive(false);
         cancelEnvoyRunTime();
+        removeAllNpcs();
 
         if (this.config.getProperty(ConfigKeys.envoys_run_time_toggle)) {
             setNextEnvoy(getEnvoyCooldown());
@@ -828,7 +860,7 @@ public class CrazyManager {
     }
 
     /**
-     * @param loc The location the signals will be at.
+     * @param loc  The location the signals will be at.
      * @param tier The tier the signal is.
      */
     public void startSignalFlare(final Location loc, final Tier tier) {
@@ -837,7 +869,7 @@ public class CrazyManager {
             public void run() {
                 firework(loc.clone().add(.5, 0, .5), tier);
             }
-        }.runTaskTimerAtLocation(this.plugin, loc, getTimeSeconds(tier.getSignalFlareTimer()) * 20L, getTimeSeconds(tier.getSignalFlareTimer()) * 20L);
+        }.runTaskTimerAtLocation(this.plugin, loc, 1L, getTimeSeconds(tier.getSignalFlareTimer()) * 20L);
 
         this.activeSignals.put(loc, task);
     }
@@ -848,7 +880,8 @@ public class CrazyManager {
     public void stopSignalFlare(Location loc) {
         try {
             this.activeSignals.get(loc).cancel();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         this.activeSignals.remove(loc);
     }
@@ -964,7 +997,8 @@ public class CrazyManager {
         }
 
         if (this.center.getWorld() == null) {
-            if (this.plugin.isLogging()) this.plugin.getLogger().severe("Failed to fix Center. Will try again next event.");
+            if (this.plugin.isLogging())
+                this.plugin.getLogger().severe("Failed to fix Center. Will try again next event.");
         }
     }
 
@@ -1004,7 +1038,7 @@ public class CrazyManager {
         FireworkMeta fireworkMeta = firework.getFireworkMeta();
 
         fireworkMeta.addEffects(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(colors).trail(true).flicker(false).build());
-        fireworkMeta.setPower(1);
+        fireworkMeta.setPower(5);
         firework.setFireworkMeta(fireworkMeta);
 
         this.methods.addFirework(firework);

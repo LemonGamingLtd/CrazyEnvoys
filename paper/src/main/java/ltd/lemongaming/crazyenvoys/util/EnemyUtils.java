@@ -168,7 +168,7 @@ public final class EnemyUtils {
         entity.setCanPickupItems(false);
         entity.setAggressive(true);
 
-        entity.clearLootTable();
+        entity.setLootTable(null);
 
         final EntityEquipment equipment = entity.getEquipment();
         equipment.setHelmet(HELMET);

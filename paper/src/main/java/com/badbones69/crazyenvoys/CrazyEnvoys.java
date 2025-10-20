@@ -10,6 +10,7 @@ import com.badbones69.crazyenvoys.api.objects.EditorSettings;
 import com.badbones69.crazyenvoys.api.objects.FlareSettings;
 import com.badbones69.crazyenvoys.api.objects.LocationSettings;
 import com.badbones69.crazyenvoys.commands.EnvoyTab;
+import com.badbones69.crazyenvoys.listeners.EntityListener;
 import com.badbones69.crazyenvoys.listeners.EnvoyEditListener;
 import com.badbones69.crazyenvoys.listeners.EnvoyClickListener;
 import com.badbones69.crazyenvoys.listeners.FireworkDamageListener;
@@ -107,6 +108,7 @@ public class CrazyEnvoys extends FoliaWrappedJavaPlugin {
         getServer().getPluginManager().registerEvents(new EnvoyClickListener(), this);
         getServer().getPluginManager().registerEvents(new FlareClickListener(), this);
         getServer().getPluginManager().registerEvents(new FireworkDamageListener(), this);
+        getServer().getPluginManager().registerEvents(new EntityListener(), this);
 
         if (PluginSupport.PLACEHOLDER_API.isPluginEnabled()) {
             new PlaceholderAPISupport().register();
