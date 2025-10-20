@@ -108,7 +108,7 @@ public class EnvoyClickListener implements Listener {
 
         if (envoyOpenEvent.isCancelled()) return;
 
-        if (tier.getFireworkToggle()) this.methods.firework(block.getLocation().add(.5, 0, .5), tier.getFireworkColors());
+        //if (tier.getFireworkToggle()) this.methods.firework(block.getLocation().add(.5, 0, .5), tier.getFireworkColors());
 
         event.getClickedBlock().setType(Material.AIR);
 

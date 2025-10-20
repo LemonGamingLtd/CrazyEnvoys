@@ -47,7 +47,6 @@ import us.crazycrew.crazyenvoys.common.config.types.ConfigKeys;
 import us.crazycrew.crazyenvoys.other.MsgUtils;
 import us.crazycrew.crazyenvoys.support.MetricsHandler;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -867,7 +866,7 @@ public class CrazyManager {
         WrappedTask task = new WrappedRunnable() {
             @Override
             public void run() {
-                firework(loc.clone().add(.5, 0, .5), tier);
+                firework(loc.clone().add(.5, 1, .5), tier);
             }
         }.runTaskTimerAtLocation(this.plugin, loc, 1L, getTimeSeconds(tier.getSignalFlareTimer()) * 20L);
 
@@ -1038,7 +1037,7 @@ public class CrazyManager {
         FireworkMeta fireworkMeta = firework.getFireworkMeta();
 
         fireworkMeta.addEffect(FireworkEffect.builder().with(FireworkEffect.Type.BALL_LARGE).withColor(colors).trail(false).flicker(false).build());
-        //fireworkMeta.setPower(1);
+        fireworkMeta.setPower(2);
         firework.setFireworkMeta(fireworkMeta);
 
         this.methods.addFirework(firework);
